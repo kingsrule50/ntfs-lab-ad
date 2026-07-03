@@ -116,7 +116,7 @@ Write-Host "============================================================" -Foreg
 Write-Host ""
 Write-Host " Domain: lab.local" -ForegroundColor Cyan
 Write-Host " DC01 RDP: $(az vm show -d -g $rg -n DC01 --query publicIps -o tsv)" -ForegroundColor White
-Write-Host " Username: azureadmin  |  Password: Lab@2026Admin!" -ForegroundColor White
+Write-Host " Username: azureadmin  |  Password: (stored in Azure Key Vault: vm-admin-password)" -ForegroundColor White
 Write-Host ""
 Write-Host " Domain Users (Password: P@ssw0rd123!):" -ForegroundColor Cyan
 Write-Host "  john.smith  --> GRP_IT" -ForegroundColor White
