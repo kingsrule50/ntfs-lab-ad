@@ -22,6 +22,13 @@ All configuration is done through a phased PowerShell automation approach using 
 
 ---
 
+## Architecture
+
+![Lab Architecture](screenshots/00-architecture.png)
+*This lab covers Phases 2–3 (AD DS install and DC promotion) and Phases labeled AD Objects and GPO in the series architecture.*
+
+---
+
 ## What Gets Configured
 
 ### Domain
@@ -97,6 +104,9 @@ cd /path/to/ntfs-lab-ad
 ./run-lab2.ps1
 ```
 
+![Key Vault credential retrieval](screenshots/01-keyvault-credentials.png)
+*The orchestration script retrieves the admin credentials from Azure Key Vault at runtime before promoting DC01 — no passwords are stored in code or passed on the command line.*
+
 The script pauses between each phase and waits for you to press **Enter** before proceeding. This allows you to verify each phase completed successfully before moving to the next.
 
 **Step 3 — Proceed to Lab 3:**
@@ -106,11 +116,13 @@ Once verification passes, proceed to [Lab 3 - NTFS File Server](https://github.c
 
 ## Credentials
 
-| Account | Username | Password |
-|---------|----------|----------|
-| Local Admin | azureadmin | Lab@2026Admin! |
-| DSRM | (recovery) | Dsrm@Lab2026! |
-| Domain Users | see table above | P@ssw0rd123! |
+| Account | Username | Source |
+|---------|----------|--------|
+| Local Admin | azureadmin | Retrieved from Azure Key Vault (`vm-admin-password`) |
+| DSRM | (recovery) | Generated at promotion time |
+| Domain Users | see table above | Set during provisioning; rotate after first logon |
+
+No passwords are committed to this repository — the orchestration script pulls credentials from Key Vault at runtime.
 
 ---
 
@@ -148,6 +160,20 @@ ntfs-lab-ad/
   [PASS] tom.davis --> GRP_Sales
 === Lab 2 Verification PASSED ===
 ```
+
+---
+
+## Configuration Results
+
+**OUs, security groups, and users created in `lab.local`:**
+
+![ADUC](screenshots/02-aduc-ous-groups-users.png)
+*Active Directory Users and Computers on DC01 — the four department groups under the Lab Groups OU, with group membership matching the RBAC design (e.g., Mike Brown and Sarah Jones in GRP_Finance, John Smith in GRP_IT).*
+
+**Group Policy configured and linked:**
+
+![GPO](screenshots/03-gpo-rdp-policy.png)
+*The `Lab - Allow RDP for Domain Users` GPO linked to the Lab Computers OU in Group Policy Management.*
 
 ---
 
