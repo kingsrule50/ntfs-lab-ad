@@ -8,7 +8,7 @@
 
 This is the second lab in a three-part series. Building on the Azure infrastructure deployed in Lab 1, I configure a fully functional **Active Directory Domain Services** environment on Windows Server 2025.
 
-All configuration is done through a phased PowerShell automation approach using Azure VM Run Commands — following best practice by keeping OS-level configuration completely separate from Terraform infrastructure provisioning.
+I perform all configuration through a phased PowerShell automation approach I built using Azure VM Run Commands — keeping OS-level configuration completely separate from the Terraform infrastructure provisioning I did in Lab 1.
 
 ---
 
@@ -25,11 +25,11 @@ All configuration is done through a phased PowerShell automation approach using 
 ## Architecture
 
 ![Lab Architecture](screenshots/00-architecture.png)
-*This lab covers Phases 2–3 (AD DS install and DC promotion) and Phases labeled AD Objects and GPO in the series architecture.*
+*In this lab I execute Phases 2–3 of the series architecture — AD DS installation, DC promotion, AD object creation, and Group Policy.*
 
 ---
 
-## What Gets Configured
+## What I Configure
 
 ### Domain
 - Domain: `lab.local`
@@ -69,7 +69,7 @@ All configuration is done through a phased PowerShell automation approach using 
 
 ## Phased Deployment Approach
 
-This lab follows the recommended phased deployment pattern to avoid the timing and state issues that occur when mixing infrastructure provisioning with OS-level configuration.
+I designed this lab around the phased deployment pattern to avoid the timing and state issues I encountered when mixing infrastructure provisioning with OS-level configuration.
 
 ```
 Phase 1 - Verify Lab 1 infrastructure is running
@@ -105,9 +105,9 @@ cd /path/to/ntfs-lab-ad
 ```
 
 ![Key Vault credential retrieval](screenshots/01-keyvault-credentials.png)
-*The orchestration script retrieves the admin credentials from Azure Key Vault at runtime before promoting DC01 — no passwords are stored in code or passed on the command line.*
+*My orchestration script retrieves the admin credentials from Azure Key Vault at runtime before promoting DC01 — I never store passwords in code or pass them on the command line.*
 
-The script pauses between each phase and waits for you to press **Enter** before proceeding. This allows you to verify each phase completed successfully before moving to the next.
+I built the script to pause between each phase and wait for you to press **Enter** before proceeding, so you can verify each phase completed successfully before moving to the next.
 
 **Step 3 — Proceed to Lab 3:**
 Once verification passes, proceed to [Lab 3 - NTFS File Server](https://github.com/kingsrule50/ntfs-lab-fileserver).
@@ -122,7 +122,7 @@ Once verification passes, proceed to [Lab 3 - NTFS File Server](https://github.c
 | DSRM | (recovery) | Generated at promotion time |
 | Domain Users | see table above | Set during provisioning; rotate after first logon |
 
-No passwords are committed to this repository — the orchestration script pulls credentials from Key Vault at runtime.
+I never commit passwords to this repository — my orchestration script pulls credentials from Key Vault at runtime.
 
 ---
 
