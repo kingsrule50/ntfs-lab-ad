@@ -17,19 +17,6 @@
 
 $rg = "RG-FileServerLab"
 
-# --- Retrieve admin credentials from Key Vault (created by Lab 1) ---
-# The DSRM (Safe Mode) password for DC promotion is NOT stored in this repo.
-Write-Host "Retrieving credentials from Azure Key Vault..." -ForegroundColor Yellow
-$kvName = az keyvault list --resource-group $rg --query "[0].name" -o tsv
-if (-not $kvName) {
-    throw "No Key Vault found in $rg. Ensure Lab 1 is deployed."
-}
-$adminPassword = az keyvault secret show --vault-name $kvName --name "vm-admin-password" --query "value" -o tsv
-if (-not $adminPassword) {
-    throw "Could not retrieve 'vm-admin-password' from Key Vault '$kvName'."
-}
-Write-Host "  [+] Credentials retrieved from Key Vault: $kvName" -ForegroundColor Green
-
 function Write-PhaseHeader {
     param([string]$Phase, [string]$Title, [string]$VM = "")
     Write-Host ""
@@ -40,29 +27,15 @@ function Write-PhaseHeader {
 }
 
 function Invoke-VMScript {
-    param(
-        [string]$VMName,
-        [string]$ScriptPath,
-        [string[]]$Parameters = @()
-    )
-    # az's @file syntax: az reads the script file directly, avoiding Windows
-    # cmd argument-length limits and quote/newline mangling that can silently
-    # corrupt scripts passed as strings. Works identically on macOS/Linux.
-    $fullPath = (Resolve-Path $ScriptPath -ErrorAction Stop).Path
-    $azArgs = @(
-        "vm", "run-command", "invoke",
-        "--resource-group", $rg,
-        "--name", $VMName,
-        "--command-id", "RunPowerShellScript",
-        "--scripts", "@$fullPath",
-        "--output", "json",
-        "--only-show-errors"
-    )
-    if ($Parameters.Count -gt 0) {
-        $azArgs += "--parameters"
-        $azArgs += $Parameters
-    }
-    $result = az @azArgs | ConvertFrom-Json
+    param([string]$VMName, [string]$ScriptPath)
+    $fullPath = (Resolve-Path $ScriptPath).Path
+    $result = az vm run-command invoke `
+        --resource-group $rg `
+        --name $VMName `
+        --command-id RunPowerShellScript `
+        --scripts "@$fullPath" `
+        --output json `
+        --only-show-errors | ConvertFrom-Json
     $stdout = $result.value | Where-Object { $_.code -like "*StdOut*" } | Select-Object -ExpandProperty message
     $stderr = $result.value | Where-Object { $_.code -like "*StdErr*" } | Select-Object -ExpandProperty message
     if ($stdout) { Write-Host $stdout -ForegroundColor White }
@@ -105,7 +78,7 @@ Wait-ForNext -NextPhase "Phase 3 - Promote DC01"
 # PHASE 3 - Promote DC01 to Domain Controller
 # =============================================================================
 Write-PhaseHeader -Phase "PHASE 3" -Title "Promote DC01 to Domain Controller" -VM "DC01"
-Invoke-VMScript -VMName "DC01" -ScriptPath "./scripts/phase3-promote-dc.ps1" -Parameters @("DsrmPassword=$adminPassword")
+Invoke-VMScript -VMName "DC01" -ScriptPath "./scripts/phase3-promote-dc.ps1"
 
 Write-Host ""
 Write-Host "Waiting 120s for DC01 to reboot and AD services to initialize..." -ForegroundColor Yellow
@@ -143,7 +116,7 @@ Write-Host "============================================================" -Foreg
 Write-Host ""
 Write-Host " Domain: lab.local" -ForegroundColor Cyan
 Write-Host " DC01 RDP: $(az vm show -d -g $rg -n DC01 --query publicIps -o tsv)" -ForegroundColor White
-Write-Host " Username: azureadmin  |  Password: (stored in Azure Key Vault: vm-admin-password)" -ForegroundColor White
+Write-Host " Username: azureadmin  |  Password: Lab@2026Admin!" -ForegroundColor White
 Write-Host ""
 Write-Host " Domain Users (Password: P@ssw0rd123!):" -ForegroundColor Cyan
 Write-Host "  john.smith  --> GRP_IT" -ForegroundColor White
