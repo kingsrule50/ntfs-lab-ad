@@ -4,6 +4,15 @@
 ![Windows Server](https://img.shields.io/badge/Windows_Server-2025-0078D6?logo=windows)
 ![Active Directory](https://img.shields.io/badge/Active_Directory-Domain_Services-0078D6?logo=microsoft)
 
+
+## 🎥 Lab Demo
+
+*Watch the full lab walkthrough (7 min):*
+
+
+https://github.com/user-attachments/assets/90dff840-f5c9-4c78-82c9-ad3e29d852af
+
+
 ## Overview
 
 This is the second lab in a three-part series. Building on the Azure infrastructure deployed in Lab 1, I configure a fully functional **Active Directory Domain Services** environment on Windows Server 2025.
